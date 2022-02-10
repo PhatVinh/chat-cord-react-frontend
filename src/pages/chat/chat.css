@@ -31,9 +31,12 @@
 	overflow-y: scroll;
 }
 
+.active {
+	background: rgba(0, 0, 0, 0.1);
+}
+
 .chat-sidebar h2 {
 	font-size: 20px;
-	background: rgba(0, 0, 0, 0.1);
 	padding: 10px;
 	margin-bottom: 20px;
 }
@@ -43,7 +46,11 @@
 }
 
 .chat-sidebar ul li {
-	padding: 10px 0;
+	padding: 10px 0px;
+}
+
+li.active {
+	padding: 10px 10px !important;
 }
 
 .chat-messages {

@@ -5,21 +5,21 @@ import { useNavigate } from 'react-router-dom';
 
 
 const Join = () => {
-    const [username, setUserName] = useState();
-    const [room, setRoom] = useState('JavaScript');
+    const [userName, setUserName] = useState();
+    const [roomName, setRoomName] = useState('JavaScript');
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log(socket);
-        socket.on("connect", () => {  console.log(socket.id);}); // "G5p5..."});
+        socket.on("connect", () => { console.log(socket.id);}); // "G5p5..."
     }, []);
+
     const submitForm = (e) => {
         e.preventDefault();
         // Join room 
-        socket.emit('joinRoom', { username, room });
+        socket.emit('joinRoom', { userName, roomName });
         // Navigate to chat page 
-        navigate(`/chat/${room}`);
+        navigate(`/chat/${roomName}`);
     }
 
     return (
@@ -42,7 +42,7 @@ const Join = () => {
                     </div>
                     <div className="form-control">
                         <label htmlFor="room">Room</label>
-                        <select name="room" id="room" onChange={(e) => setRoom(e.target.value)}>
+                        <select name="room" id="room" onChange={(e) => setRoomName(e.target.value)}>
                             <option value="JavaScript">JavaScript</option>
                             <option value="Python">Python</option>
                             <option value="PHP">PHP</option>
