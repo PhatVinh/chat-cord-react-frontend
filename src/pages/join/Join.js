@@ -1,25 +1,41 @@
 import './join.css';
 import { useContext, useEffect, useState } from 'react';
 import { SocketContext } from '../../context/SocketContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { makeRequest } from '../../utils/API';
 
 
 const Join = () => {
-    const [userName, setUserName] = useState();
+    const [userName, setUserName] = useState(useLocation().state || '');
     const [roomName, setRoomName] = useState('JavaScript');
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
-
+    
     useEffect(() => {
+        if(userName !== '') {
+            console.log(userName);
+            alert("This username is already in use, please try another one");
+        }
         socket.on("connect", () => { console.log(socket.id);}); // "G5p5..."
     }, []);
 
     const submitForm = (e) => {
         e.preventDefault();
-        // Join room 
-        socket.emit('joinRoom', { userName, roomName });
-        // Navigate to chat page 
-        navigate(`/chat/${roomName}`);
+        makeRequest({
+            url: `user/check-username/${userName}`,
+            successCallback: (res) => {
+                if(res.isValid === true){
+                    // Navigate to chat page 
+                    navigate(`/chat/${roomName}/${userName}`);
+                    return;
+                }
+                alert("This username is already in use, please try another one");
+            },
+            failureCallback: (err) => {
+                console.log('Failed ', err);
+            },
+            requestType: 'GET'
+        })
     }
 
     return (
@@ -37,6 +53,7 @@ const Join = () => {
                             id="username" 
                             placeholder="Enter username..." 
                             required  
+                            value={userName}
                             onChange={(e) => setUserName(e.target.value)}
                         />
                     </div>

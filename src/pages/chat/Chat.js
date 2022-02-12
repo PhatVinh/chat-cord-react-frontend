@@ -2,12 +2,13 @@ import './chat.css';
 import { useContext, useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { SocketContext } from '../../context/SocketContext';
+import { makeRequest } from '../../utils/API';
 
 
 const Chat = () => {
     const socket = useContext(SocketContext);
     const bottomDiv = useRef();
-    const { room } = useParams();
+    const { room, username } = useParams();
     const navigate = useNavigate();
 
     const [chats, setChats] = useState([]);
@@ -27,11 +28,29 @@ const Chat = () => {
         navigate(`/`);
     }
 
-    // Get user name 
     useEffect(() => {
-        socket.on('userName', (userName) => {
-            setUserName(userName);
-        });
+        // Check username exits (in case user get into chat page with url)
+        makeRequest({
+            url: `user/check-username/${username}`,
+            successCallback: (res) => {
+                if(res.isValid === false){
+                    // Navigate to chat page 
+                    navigate(`/`, {state: username});
+                    return;
+                }
+                // Join room 
+                socket.emit('joinRoom', { userName: username, roomName: room });
+                
+                // Get username
+                socket.on('userName', (userName) => {
+                    setUserName(userName);
+                });
+            },
+            failureCallback: (err) => {
+                console.log('Failed ', err);
+            },
+            requestType: 'GET'
+        })
 
         return () => {
             // Remove all listener when use leave page

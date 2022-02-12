@@ -7,7 +7,7 @@ const Router = () => {
     return (
         <Routes>
             <Route path="/" element={ <Join /> } />
-            <Route path="/chat/:room" element={ <Chat /> } />
+            <Route path="/chat/:room/:username" element={ <Chat /> } />
         </Routes>
     )
 }
