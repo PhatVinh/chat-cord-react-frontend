@@ -7,15 +7,30 @@ import { makeRequest } from '../../utils/API';
 
 const Join = () => {
     const [userName, setUserName] = useState(useLocation().state || '');
-    const [roomName, setRoomName] = useState('JavaScript');
+    const [rooms, setRooms] = useState([]);
+    const [chosenRoom, setChosenRoom] = useState('');
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
     
     useEffect(() => {
+        // Alert message
         if(userName !== '') {
-            console.log(userName);
             alert("This username is already in use, please try another one");
         }
+
+        makeRequest({
+            url: 'room/get-all',
+            successCallback: (res) => {
+                let { room } = res;
+                setChosenRoom(room[0]._id);
+                setRooms(room);
+            },
+            failureCallback: (err) => {
+                console.log(err);
+            },
+            requestType: "GET"
+        });
+
         socket.on("connect", () => { console.log(socket.id);}); // "G5p5..."
     }, []);
 
@@ -26,7 +41,7 @@ const Join = () => {
             successCallback: (res) => {
                 if(res.isValid === true){
                     // Navigate to chat page 
-                    navigate(`/chat/${roomName}/${userName}`);
+                    navigate(`/chat/${chosenRoom}/${userName}`);
                     return;
                 }
                 alert("This username is already in use, please try another one");
@@ -59,13 +74,14 @@ const Join = () => {
                     </div>
                     <div className="form-control">
                         <label htmlFor="room">Room</label>
-                        <select name="room" id="room" onChange={(e) => setRoomName(e.target.value)}>
-                            <option value="JavaScript">JavaScript</option>
-                            <option value="Python">Python</option>
-                            <option value="PHP">PHP</option>
-                            <option value="C#">C#</option>
-                            <option value="Ruby">Ruby</option>
-                            <option value="Java">Java</option>
+                        <select name="room" id="room" onChange={(e) => setChosenRoom(e.target.value) }>
+                            {
+                                rooms.map((room, index) => {
+                                    return (
+                                        <option key={index} value={room._id}>{ room.name }</option>
+                                    )
+                                })
+                            }
                         </select>
                     </div>
                     <button type="submit" className="btn">Join Chat</button>
